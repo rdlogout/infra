@@ -11,6 +11,7 @@ processRoute.get('/', async (c) => {
   const width = c.req.query('width') ? parseInt(c.req.query('width')!) : undefined;
   const height = c.req.query('height') ? parseInt(c.req.query('height')!) : undefined;
   const mode = c.req.query('mode');
+  const format = c.req.query('format') as 'jpeg' | 'png' | 'webp' | undefined;
 
   if (!url) {
     return c.json({ error: 'URL parameter is required' }, 400);
@@ -33,9 +34,9 @@ processRoute.get('/', async (c) => {
     let processedPath = filePath;
 
     if (info.type === MediaType.Video) {
-      processedPath = await extractThumbnail(filePath, width, height);
-    } else if (info.type === MediaType.Image && (width || height)) {
-      processedPath = await resizeImage(filePath, width, height);
+      processedPath = await extractThumbnail(filePath, width, height, format);
+    } else if (info.type === MediaType.Image && (width || height || format)) {
+      processedPath = await resizeImage(filePath, width, height, format);
     }
 
     const file = Bun.file(processedPath);
