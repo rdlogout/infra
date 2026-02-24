@@ -44,7 +44,10 @@ processRoute.get('/', async (c) => {
     await cleanup(tempDir);
     
     return new Response(buffer, {
-      headers: { 'Content-Type': file.type }
+      headers: { 
+        'Content-Type': file.type,
+        'X-Info': JSON.stringify(info)
+      }
     });
   } catch (error) {
     if (tempDir) await cleanup(tempDir);
