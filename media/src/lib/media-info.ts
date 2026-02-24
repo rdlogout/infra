@@ -1,5 +1,6 @@
 import sharp from 'sharp';
 import { exec } from './exec';
+import { stat } from 'fs/promises';
 
 export enum MediaType {
   Video = 'video',
@@ -13,6 +14,7 @@ export interface MediaInfo {
   duration?: number;
   width?: number;
   height?: number;
+  size: number;
 }
 
 const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
@@ -29,6 +31,7 @@ function getTypeFromExtension(filePath: string): MediaType {
 
 export async function getMediaInfo(filePath: string): Promise<MediaInfo> {
   const type = getTypeFromExtension(filePath);
+  const stats = await stat(filePath);
 
   if (type === MediaType.Image) {
     const metadata = await sharp(filePath).metadata();
@@ -37,6 +40,7 @@ export async function getMediaInfo(filePath: string): Promise<MediaInfo> {
       type: MediaType.Image,
       width: metadata.width,
       height: metadata.height,
+      size: stats.size,
     };
   }
 
@@ -50,5 +54,6 @@ export async function getMediaInfo(filePath: string): Promise<MediaInfo> {
     duration: data.format?.duration ? parseFloat(data.format.duration) : undefined,
     width: videoStream?.width,
     height: videoStream?.height,
+    size: stats.size,
   };
 }
